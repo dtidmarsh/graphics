@@ -1,0 +1,22 @@
+Makefile provided for easy compilation under
+Linux - just type 'make'.
+
+Passes all 4 test cases provided and runs without
+errors under Valgrind/Memcheck.
+
+I wanted to make my code fairly robust, so I
+rigorously checked the input of the scene and
+.raw files. Initially a malformed instruction
+within a file would result in program termination,
+but I had to change this, as scene 3 (teapot)
+contained an incorrect line at the very end of
+the .raw file that resulted in failure without
+rendering the triangles. Now a malformed
+instruction will be simply skipped (with user
+notification through stderr) and the remaining
+information will still go into the render;
+premature termination occurs only when the program
+cannot read the provided scene file or its header
+contents (width, height, minimum/maximum X & Y
+coordinates).
+
