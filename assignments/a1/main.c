@@ -5,8 +5,6 @@
 #include "DScene.h"
 #include "DRaster.h"
 
-#define INIT_SIZE (1000)
-
 int main(int argc, char* argv[])
 {
   FILE* f;
@@ -18,50 +16,37 @@ int main(int argc, char* argv[])
   float tx, ty, theta, sx, sy;
   float temp[9];
 	
-  // check correct number of arguments
   if(argc != 2) {
     fprintf(stderr, "Usage: render scene.u2d\n");
     return 1;
-  }
-	
-  // check file exists
-  if(!(f = fopen(argv[1], "r"))) {
+  } else if(!(f = fopen(argv[1], "r"))) {
     fprintf(stderr, "Fatal error: Cannot read input scene file.\n");
     fclose(f);
     return 2;
-  }
-	
-  // check magic number
-  if(fscanf(f, "%2s", magicNumber) != 1 || strcmp(magicNumber, "U2")) {
+  } else if(fscanf(f, "%2s", magicNumber) != 1 || strcmp(magicNumber, "U2")) {
     fprintf(stderr, "Fatal error: Incorrect format for input scene file.\n");
     fclose(f);
     return 2;
-  }
-	
-  // check width and height and store them
-  if(fscanf(f, "%d %d", &width, &height) != 2) {
-    fprintf(stderr, "Fatal error: Cannot read scene width and height properly.\n");
+  } else if(fscanf(f, "%d %d", &width, &height) != 2) {
+    fprintf(stderr, "Fatal error: Cannot read scene width/height properly.\n");
     fclose(f);
     return 3;
   }
 	
   // check min/max x/y and store them
   if(fscanf(f, "%f %f %f %f", &minX, &minY, &maxX, &maxY) != 4) {
-    fprintf(stderr, "Fatal error: Cannot read scene minimum and maximum coordinates properly.\n");
+    fprintf(stderr, "Fatal error: Cannot read min/max coordinates properly.\n");
     fclose(f);
     return 3;
   }
 	
-  // create scene with stored info
   DScene scene = DSceneMake(width, height, minX, minY, maxX, maxY);
-	
-  // create raster
   DRaster* raster = DRasterMake(width, height, DColorBlack);
 	
   doneReading = 0;
   // initialize all colors to black
   r1 = g1 = b1 = r2 = g2 = b2 = r3 = g3 = b3 = 0;
-  // while there's still geometry info to read
+
   while(!doneReading) {
     fscanf(f, "%*[ \t\n\f\v\r]");
     c = fgetc(f);
@@ -76,10 +61,11 @@ int main(int argc, char* argv[])
 	    DColor bC = DColorMake(1.0f, r2, g2, b2);
 	    DColor cC = DColorMake(1.0f, r3, g3, b3);
 	    DRasterApplyGeometry(raster, scene, aC, bC, cC);
+
 	    // refresh transformation matrix
 	    scene.m = DMatrixIdentity;
 	  }
-	  // get name of geometry file from input
+	  // get name of new geometry file from input
 	  DSceneLoadFilename(&scene, f);
 	  break;
 	}
@@ -87,8 +73,10 @@ int main(int argc, char* argv[])
       case 'c':
 	{	
 	  // color line
-	  if(fscanf(f, "%f %f %f %f %f %f %f %f %f", &temp[0], &temp[1], &temp[2], &temp[3], &temp[4], &temp[5], &temp[6], &temp[7], &temp[8]) != 9) {
-	    fprintf(stderr, "Error: Invalid format for color instruction. Skipping...\n");
+	  if(fscanf(f, "%f %f %f %f %f %f %f %f %f", &temp[0], &temp[1],
+		    &temp[2], &temp[3], &temp[4], &temp[5], &temp[6],
+		    &temp[7], &temp[8]) != 9) {
+	    fprintf(stderr, "Error: Invalid format for color instruction.\n");
 	    break;
 	  } else {
 	    while(1) {
@@ -106,7 +94,8 @@ int main(int argc, char* argv[])
 		break;
 	      }
 	      else if(!isspace((unsigned char)c)) {
-		fprintf(stderr, "Error: Invalid format for color instruction. Skipping...\n");
+		fprintf(stderr, 
+			"Error: Invalid format for color instruction.\n");
 		break;
 	      }
 	    }
@@ -118,7 +107,8 @@ int main(int argc, char* argv[])
 	{
 	  // translate line
 	  if(fscanf(f, "%f %f", &temp[0], &temp[1]) != 2) {
-	    fprintf(stderr, "Error: Invalid format for transform instruction. Skipping...\n");
+	    fprintf(stderr,
+		    "Error: Invalid format for transform instruction.\n");
 	    break;
 	  } else {
 	    while(1) {
@@ -126,11 +116,13 @@ int main(int argc, char* argv[])
 	      if(c == '\n' || c == EOF) {
 		tx = temp[0];
 		ty = temp[1];
-		scene.m = DMatrixMultiplyMatrix(scene.m, DMatrixMakeTranslate(tx, ty));
+		scene.m = DMatrixMultiplyMatrix(scene.m,
+						DMatrixMakeTranslate(tx, ty));
 		break;
 	      }
 	      else if(!isspace((unsigned char)c)) {
-		fprintf(stderr, "Error: Invalid format for transform instruction. Skipping...\n");
+		fprintf(stderr,
+			"Error: Invalid format for transform instruction.\n");
 		break;
 	      }
 	    }
@@ -142,18 +134,20 @@ int main(int argc, char* argv[])
 	{	
 	  // rotate line
 	  if(fscanf(f, "%f", &temp[0]) != 1) {
-	    fprintf(stderr, "Error: Invalid format for rotate instruction. Skipping...\n");
+	    fprintf(stderr, "Error: Invalid format for rotate instruction.\n");
 	    break;
 	  } else {
 	    while(1) {
 	      c = getc(f);
 	      if(c == '\n' || c == EOF) {
 		theta = temp[0];
-		scene.m = DMatrixMultiplyMatrix(scene.m, DMatrixMakeRotate(theta));
+		scene.m = DMatrixMultiplyMatrix(scene.m,
+						DMatrixMakeRotate(theta));
 		break;
 	      }
 	      else if(!isspace((unsigned char)c)) {
-		fprintf(stderr, "Error: Invalid format for rotate instruction. Skipping...\n");
+		fprintf(stderr,
+			"Error: Invalid format for rotate instruction.\n");
 		break;
 	      }
 	    }
@@ -165,7 +159,7 @@ int main(int argc, char* argv[])
 	{
 	  // scale line
 	  if(fscanf(f, "%f %f", &temp[0], &temp[1]) != 2) {
-	    fprintf(stderr, "Error: Invalid format for scale instruction. Skipping...\n");
+	    fprintf(stderr, "Error: Invalid format for scale instruction.\n");
 	    break;
 	  } else {
 	    while(1) {
@@ -173,11 +167,13 @@ int main(int argc, char* argv[])
 	      if(c == '\n' || c == EOF) {
 		sx = temp[0];
 		sy = temp[1];
-		scene.m = DMatrixMultiplyMatrix(scene.m, DMatrixMakeScale(sx, sy));
+		scene.m = DMatrixMultiplyMatrix(scene.m,
+						DMatrixMakeScale(sx, sy));
 		break;
 	      }
 	      else if(!isspace((unsigned char)c)) {
-		fprintf(stderr, "Error: Invalid format for scale instruction. Skipping...\n");
+		fprintf(stderr,
+			"Error: Invalid format for scale instruction.\n");
 		break;
 	      }
 	    }
@@ -194,21 +190,21 @@ int main(int argc, char* argv[])
 	    DColor cC = DColorMake(1.0f, r3, g3, b3);
 	    DRasterApplyGeometry(raster, scene, aC, bC, cC);
 	  }
-	  // nothing left to read
+
 	  doneReading = 1;
 	  break;
 	}
 				
       default:
 	{
-	  fprintf(stderr, "Error: Unrecognized instruction for triangle transformation. Skipping...\n");
+	  fprintf(stderr,
+		  "Error: Unrecognized instruction for triangle transformation.\n");
 	  while((c = fgetc(f)) != '\n' && c != EOF);
 	  break;
 	}	
       }
   }
 	
-  // create images
   DRasterSavePPM(raster, "scene.ppm");
   DRasterSaveBMP(raster, "scene.bmp");
 	

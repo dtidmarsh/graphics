@@ -1,6 +1,9 @@
 #ifndef DSCENE_H
 #define DSCENE_H
 
+// Initial size of filename buffer
+#define INIT_SIZE (1000)
+
 #include "DMatrix.h"
 
 /*
@@ -28,10 +31,8 @@ typedef struct DScene {
   float minX, minY, maxX, maxY;
 } DScene;
 
-// Constructor
 DScene DSceneMake(int width, int height, float minX, float minY, float maxX, float maxY);
 
-// Getters for scene width and height
 int DSceneGetWidth(DScene s);
 int DSceneGetHeight(DScene s);
 

@@ -17,7 +17,6 @@ typedef struct DVector3D {
   float vec[3];
 } DVector3D;
 
-// Constructors
 DVector2D DVector2DMake(float x, float y);
 DVector3D DVector3DMake(float x, float y, float w);
 

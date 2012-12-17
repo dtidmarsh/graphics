@@ -45,7 +45,7 @@ void DRasterDrawTriangle(DRaster* raster, DTriangle t, DColor fill)
       DVector2D v = DVector2DMake((float)x, (float)y);
       DTriangleBarycentric(t, v, &lambda1, &lambda2, &lambda3);
 			
-      // validate barycentric coordinates and fill pixel or not
+      // validate barycentric coordinates and figure out whether to fill pixel
       if(lambda1 >= 0.0f && lambda2 >= 0.0f && lambda3 >= 0.0f) {
 	raster->pixels[y * width + x] = fill;
       }
@@ -53,15 +53,17 @@ void DRasterDrawTriangle(DRaster* raster, DTriangle t, DColor fill)
   }
 }
 
-void DRasterDrawTriangleInterp(DRaster* raster, DTriangle t, DColor aC, DColor bC, DColor cC)
+void DRasterDrawTriangleInterp(DRaster* raster, DTriangle t, DColor aC,
+DColor bC, DColor cC)
 {
   int x, y;
   int width = DRasterWidth(raster);
   int height = DRasterHeight(raster);
-  // iterate over all the pixels in the raster
+
   for(y = 0; y < height; y++) {
     for(x = 0; x < width; x++) {
-      // find a position on the pixel to represent the whole pixel (center sampling)
+      /* find a position on the pixel to represent the whole pixel
+	 (center sampling) */
       DVector2D v = DVector2DMake((float)x + 0.5f, (float)y + 0.5f);
 			
       // calculate barycentric coordinates
@@ -70,7 +72,7 @@ void DRasterDrawTriangleInterp(DRaster* raster, DTriangle t, DColor aC, DColor b
       float lambda3 = 0.0f;
       DTriangleBarycentric(t, v, &lambda1, &lambda2, &lambda3);
 			
-      // validate barycentric coordinates and fill pixel or not
+      // validate barycentric coordinates and figure out whether to fill pixel
       if(lambda1 >= 0.0f && lambda2 >= 0.0f && lambda3 >= 0.0f) {
 	DColor aContrib = DColorScale(aC, lambda1);
 	DColor bContrib = DColorScale(bC, lambda2);
@@ -82,7 +84,8 @@ void DRasterDrawTriangleInterp(DRaster* raster, DTriangle t, DColor aC, DColor b
   }
 }
 
-void DRasterApplyGeometry(DRaster* raster, DScene scene, DColor aC, DColor bC, DColor cC)
+void DRasterApplyGeometry(DRaster* raster, DScene scene, DColor aC, DColor bC,
+DColor cC)
 {
   DTriangle t;
   DVector3D avec, bvec, cvec;
@@ -96,7 +99,6 @@ void DRasterApplyGeometry(DRaster* raster, DScene scene, DColor aC, DColor bC, D
   sceneXSize = fabs(scene.minX) + fabs(scene.maxX);
   sceneYSize = fabs(scene.minY) + fabs(scene.maxY);
 	
-  // check RAW file exists
   if(!(f = fopen(scene.gFile, "r"))) {
     fprintf(stderr, "Error: Cannot read RAW file %s.\n", scene.gFile);
     fclose(f);
@@ -105,14 +107,16 @@ void DRasterApplyGeometry(DRaster* raster, DScene scene, DColor aC, DColor bC, D
 	
   while((c = fgetc(f)) != EOF) {
     ungetc(c, f);
-    // grab one triangle instruction and check that it was received correctly
-    if(fscanf(f, "%f %f %f %f %f %f %f %f %f", &temp[0], &temp[1], &temp[2], &temp[3], &temp[4], &temp[5], &temp[6], &temp[7], &temp[8]) != 9) {
-      fprintf(stderr, "Error: Invalid format for RAW triangle instruction. Skipping...\n");
+    if(fscanf(f, "%f %f %f %f %f %f %f %f %f", &temp[0], &temp[1], &temp[2],
+	      &temp[3], &temp[4], &temp[5], &temp[6], &temp[7], 
+	      &temp[8]) != 9) {
+      fprintf(stderr, "Error: Invalid format for RAW triangle instruction.\n");
       break;
     } else {
       while(1) {
 	c = getc(f);
 	if(c == '\n' || c == EOF) {
+	  // we ignore temp[2|5|8], as we only deal with 2D coordinates
 	  x1 = temp[0];
 	  y1 = temp[1];
 	  x2 = temp[3];
@@ -126,12 +130,19 @@ void DRasterApplyGeometry(DRaster* raster, DScene scene, DColor aC, DColor bC, D
 	  cvec = DMatrixMultiplyVector(scene.m, DVector3DMake(x3, y3, 1));
 		
 	  // scale vectors to raster coordinates
-	  avec.vec[0] = (avec.vec[0] - scene.minX)*((float)scene.width/sceneXSize);
-	  bvec.vec[0] = (bvec.vec[0] - scene.minX)*((float)scene.width/sceneXSize);
-	  cvec.vec[0] = (cvec.vec[0] - scene.minX)*((float)scene.width/sceneXSize);
-	  avec.vec[1] = ((float)scene.height - (avec.vec[1] - scene.minY)*((float)scene.height/sceneYSize));
-	  bvec.vec[1] = ((float)scene.height - (bvec.vec[1] - scene.minY)*((float)scene.height/sceneYSize));
-	  cvec.vec[1] = ((float)scene.height - (cvec.vec[1] - scene.minY)*((float)scene.height/sceneYSize));
+	  avec.vec[0] = (avec.vec[0] - scene.minX)*
+	    ((float)scene.width/sceneXSize);
+	  bvec.vec[0] = (bvec.vec[0] - scene.minX)*
+	    ((float)scene.width/sceneXSize);
+	  cvec.vec[0] = (cvec.vec[0] - scene.minX)*
+	    ((float)scene.width/sceneXSize);
+
+	  avec.vec[1] = (float)scene.height - 
+	    (avec.vec[1] - scene.minY)*((float)scene.height/sceneYSize);
+	  bvec.vec[1] = (float)scene.height -
+	    (bvec.vec[1] - scene.minY)*((float)scene.height/sceneYSize);
+	  cvec.vec[1] = (float)scene.height -
+	    (cvec.vec[1] - scene.minY)*((float)scene.height/sceneYSize);
 		
 	  t.a = DVector2DMake(avec.vec[0], avec.vec[1]);
 	  t.b = DVector2DMake(bvec.vec[0], bvec.vec[1]);
@@ -141,8 +152,9 @@ void DRasterApplyGeometry(DRaster* raster, DScene scene, DColor aC, DColor bC, D
 	  DRasterDrawTriangleInterp(raster, t, aC, bC, cC);
 	  break;
 	} else if(!isspace((unsigned char)c)) {
-	  // if there's anything except whitespace after the numbers entered, then it's an invalid format
-	  fprintf(stderr, "Error: Invalid format for RAW triangle instruction. Skipping...\n");
+	  /* If there's anything except whitespace after the numbers entered,
+	     then it's an invalid format. */
+	  fprintf(stderr, "Error: Invalid format for RAW triangle instruction.\n");
 	  while((c = fgetc(f)) != '\n' && c != EOF);
 	  break;
 	}
@@ -177,7 +189,8 @@ void DRasterSavePPM(DRaster* raster, char* path)
     for(int x = 0; x < width; x++) {
       DColor c = *pixels;
       DColorARGB argb = DColorToARGB(c);
-      fprintf(f, "%d %d %d\t", ((argb & 0xFF0000) >> 16), ((argb & 0xFF00) >> 8), (argb & 0xFF));
+      fprintf(f, "%d %d %d\t", ((argb & 0xFF0000) >> 16),
+	      ((argb & 0xFF00) >> 8), (argb & 0xFF));
       pixels++;
     }
     fprintf(f, "\n");
@@ -187,38 +200,7 @@ void DRasterSavePPM(DRaster* raster, char* path)
 }
 
 void DRasterSaveBMP(DRaster* raster, char* path)
-{
-  /*	BMP (Windows V3)
-	Offset	Size	Description
-	0		2		The magic number used to identify the BMP file: 0x42 0x4D
-	(hex code points for B and M in big-endian order)
-	2		4		The size of the BMP file in bytes
-	6		2		Reserved; actual value depends on the application that
-	creates the image
-	8		2		Reserved; actual value depends on the application that
-	creates the image
-	10		4		The offset, i.e. starting address, of the byte where the
-	bitmap data can be found
-	14		4		The size of this header (40 bytes)
-	18		4		The bitmap width in pixels (signed integer)
-	22		4		The bitmap height in pixels (signed integer)
-	26		2		The number of color planes being used; must be set to 1
-	28		2		The number of bits per pixel, which is the color samplesPerPixel
-	of the image; typical values are 1, 4, 8, 16, 24, and 32
-	30		4		The compression method being used; see the next table for 
-	a list of possible values
-	34		4		The image size (size of the raw bitmap data); should not be
-	confused with the file size
-	38		4		The horizontal resolution of the image (pixels per meter,
-	signed integer)
-	42		4		The vertical resolution of the image (pixels per meter,
-	signed integer)
-	46		4		The number of colors in the color palette, or 0 to default
-	to 2n
-	50		4		The number of important colors used, or 0 when every color
-	is important; generally ignored
-  */
-	
+{	
   // open file for writing binary
   FILE* file = fopen(path, "wb");
   if(file == NULL) {
@@ -245,7 +227,6 @@ void DRasterSaveBMP(DRaster* raster, char* path)
   uint32_t importantPaletteColorCount = 0;
   uint32_t fileSize = 54 + dataSize;
     
-  // write BMP header
   fwrite(&magicNumber, sizeof(magicNumber), 1, file);
   fwrite(&fileSize, sizeof(fileSize), 1, file);
   fwrite(&reserved0, sizeof(reserved0), 1, file);
@@ -261,11 +242,11 @@ void DRasterSaveBMP(DRaster* raster, char* path)
   fwrite(&horizontalResolution, sizeof(horizontalResolution), 1, file);
   fwrite(&verticalResolution, sizeof(verticalResolution), 1, file);
   fwrite(&paletteColorCount, sizeof(paletteColorCount), 1, file);
-  fwrite(&importantPaletteColorCount, sizeof(importantPaletteColorCount), 1, file);
+  fwrite(&importantPaletteColorCount, 
+	 sizeof(importantPaletteColorCount), 1, file);
 	
-  // write pixel data
   for(int y = height - 1; y >= 0; y--) {
-    for(int x = 0; x < width; x++) {
+    for(unsigned int x = 0; x < width; x++) {
       DColor c = raster->pixels[y * width + x];
       DColorARGB color = DColorToARGB(c);
       fwrite(&color, sizeof(color), 1, file);

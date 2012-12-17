@@ -1,7 +1,8 @@
 #include <math.h>
 #include "DColor.h"
 
-DColor DColorMake(ColorChannel a, ColorChannel r, ColorChannel g, ColorChannel b)
+DColor DColorMake(ColorChannel a, ColorChannel r, ColorChannel g, 
+ColorChannel b)
 {
   DColor c;
 	

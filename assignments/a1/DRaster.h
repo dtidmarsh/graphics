@@ -20,7 +20,6 @@ typedef struct DRaster {
   DColor* pixels;
 } DRaster;
 
-// Constructor
 DRaster* DRasterMake(int width, int height, DColor fill);
 
 // Getters for raster width/height
@@ -31,14 +30,12 @@ int DRasterHeight(DRaster* raster);
 void DRasterDrawTriangle(DRaster* raster, DTriangle t, DColor fill);
 void DRasterDrawTriangleInterp(DRaster* raster, DTriangle t, DColor aC, DColor bC, DColor cC);
 
-// Apply most recent geometry information to raster
+// Applies most recent geometry information to raster
 void DRasterApplyGeometry(DRaster* raster, DScene s, DColor aC, DColor bC, DColor cC);
 
-// Save raster as a PPM/BMP image file
 void DRasterSavePPM(DRaster* raster, char* path);
 void DRasterSaveBMP(DRaster* raster, char* path);
 
-// Destructor
 void DRasterDestroy(DRaster* raster);
 
 #endif

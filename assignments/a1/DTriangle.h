@@ -6,14 +6,13 @@
 /*
   DTriangle structure consists of a
   triangle represented as a collection
-  of 3 2D vectors.	
+  of 3 2x1 vectors.	
 */
 
 typedef struct DTriangle {
   DVector2D a, b, c;
 } DTriangle;
 
-// Constructor
 DTriangle DTriangleMake(DVector2D a, DVector2D b, DVector2D c);
 
 // Calculate barycentric coordinates

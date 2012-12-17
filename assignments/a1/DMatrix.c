@@ -4,7 +4,7 @@
 #include "DMatrix.h"
 
 DMatrix DMatrixMake(float m11, float m12, float m13, float m21, float m22, 
-		    float m23, float m31, float m32, float m33)
+float m23, float m31, float m32, float m33)
 {
   DMatrix m;
 	
@@ -87,17 +87,26 @@ DMatrix DMatrixMultiplyMatrix(DMatrix m1, DMatrix m2)
 {
   DMatrix m;
 	
-  m.mat[0][0] = m1.mat[0][0]*m2.mat[0][0] + m1.mat[0][1]*m2.mat[1][0] + m1.mat[0][2]*m2.mat[2][0];
-  m.mat[0][1] = m1.mat[0][0]*m2.mat[0][1] + m1.mat[0][1]*m2.mat[1][1] + m1.mat[0][2]*m2.mat[2][1];
-  m.mat[0][2] = m1.mat[0][0]*m2.mat[0][2] + m1.mat[0][1]*m2.mat[1][2] + m1.mat[0][2]*m2.mat[2][2];
+  m.mat[0][0] = m1.mat[0][0]*m2.mat[0][0] + m1.mat[0][1]*m2.mat[1][0]
+    + m1.mat[0][2]*m2.mat[2][0];
+  m.mat[0][1] = m1.mat[0][0]*m2.mat[0][1] + m1.mat[0][1]*m2.mat[1][1]
+    + m1.mat[0][2]*m2.mat[2][1];
+  m.mat[0][2] = m1.mat[0][0]*m2.mat[0][2] + m1.mat[0][1]*m2.mat[1][2]
+    + m1.mat[0][2]*m2.mat[2][2];
 	
-  m.mat[1][0] = m1.mat[1][0]*m2.mat[0][0] + m1.mat[1][1]*m2.mat[1][0] + m1.mat[1][2]*m2.mat[2][0];
-  m.mat[1][1] = m1.mat[1][0]*m2.mat[0][1] + m1.mat[1][1]*m2.mat[1][1] + m1.mat[1][2]*m2.mat[2][1];
-  m.mat[1][2] = m1.mat[1][0]*m2.mat[0][2] + m1.mat[1][1]*m2.mat[1][2] + m1.mat[1][2]*m2.mat[2][2];
+  m.mat[1][0] = m1.mat[1][0]*m2.mat[0][0] + m1.mat[1][1]*m2.mat[1][0]
+    + m1.mat[1][2]*m2.mat[2][0];
+  m.mat[1][1] = m1.mat[1][0]*m2.mat[0][1] + m1.mat[1][1]*m2.mat[1][1]
+    + m1.mat[1][2]*m2.mat[2][1];
+  m.mat[1][2] = m1.mat[1][0]*m2.mat[0][2] + m1.mat[1][1]*m2.mat[1][2]
+    + m1.mat[1][2]*m2.mat[2][2];
 	
-  m.mat[2][0] = m1.mat[2][0]*m2.mat[0][0] + m1.mat[2][1]*m2.mat[1][0] + m1.mat[2][2]*m2.mat[2][0];
-  m.mat[2][1] = m1.mat[2][0]*m2.mat[0][1] + m1.mat[2][1]*m2.mat[1][1] + m1.mat[2][2]*m2.mat[2][1];
-  m.mat[2][2] = m1.mat[2][0]*m2.mat[0][2] + m1.mat[2][1]*m2.mat[1][2] + m1.mat[2][2]*m2.mat[2][2];
+  m.mat[2][0] = m1.mat[2][0]*m2.mat[0][0] + m1.mat[2][1]*m2.mat[1][0]
+    + m1.mat[2][2]*m2.mat[2][0];
+  m.mat[2][1] = m1.mat[2][0]*m2.mat[0][1] + m1.mat[2][1]*m2.mat[1][1]
+    + m1.mat[2][2]*m2.mat[2][1];
+  m.mat[2][2] = m1.mat[2][0]*m2.mat[0][2] + m1.mat[2][1]*m2.mat[1][2]
+    + m1.mat[2][2]*m2.mat[2][2];
 	
   return m;
 }
@@ -106,9 +115,12 @@ DVector3D DMatrixMultiplyVector(DMatrix m, DVector3D v)
 {
   DVector3D v1;
 	
-  v1.vec[0] = m.mat[0][0]*v.vec[0] + m.mat[0][1]*v.vec[1] + m.mat[0][2]*v.vec[2];
-  v1.vec[1] = m.mat[1][0]*v.vec[0] + m.mat[1][1]*v.vec[1] + m.mat[1][2]*v.vec[2];
-  v1.vec[2] = m.mat[2][0]*v.vec[0] + m.mat[2][1]*v.vec[1] + m.mat[2][2]*v.vec[2];
+  v1.vec[0] = m.mat[0][0]*v.vec[0] + m.mat[0][1]*v.vec[1]
+    + m.mat[0][2]*v.vec[2];
+  v1.vec[1] = m.mat[1][0]*v.vec[0] + m.mat[1][1]*v.vec[1]
+    + m.mat[1][2]*v.vec[2];
+  v1.vec[2] = m.mat[2][0]*v.vec[0] + m.mat[2][1]*v.vec[1]
+    + m.mat[2][2]*v.vec[2];
 	
   return v1;
 }

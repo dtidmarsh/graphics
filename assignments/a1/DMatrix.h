@@ -18,26 +18,19 @@ typedef struct DMatrix
 } DMatrix;
 
 
-// Constructor
 DMatrix DMatrixMake(float m11, float m12, float m13, float m21, float m22, 
-		    float m23, float m31, float m32, float m33);
+float m23, float m31, float m32, float m33);
 
-// Creates translation matrix
 DMatrix DMatrixMakeTranslate(float tx, float ty);
-
-// Creates rotation matrix
 DMatrix DMatrixMakeRotate(float theta);
-
-// Creates scale matrix
 DMatrix DMatrixMakeScale(float sx, float sy);
 
-// Multiply two matrices
+// Multiply two 3x3 matrices
 DMatrix DMatrixMultiplyMatrix(DMatrix m1, DMatrix m2);
 
-// Multiply a matrix and a 3D vector
+// Multiply a 3x3 matrix and a 3x1 vector
 DVector3D DMatrixMultiplyVector(DMatrix m, DVector3D v);
 
-// Macro for identity matrix constructor
-#define DMatrixIdentity DMatrixMake(1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f)
+#define DMatrixIdentity DMatrixMake(1.0f,0.0f,0.0f,0.0f,1.0f,0.0f,0.0f,0.0f,1.0f)
 
 #endif
