@@ -84,7 +84,7 @@ DColor bC, DColor cC)
   }
 }
 
-void DRasterApplyGeometry(DRaster* raster, DScene scene, DColor aC, DColor bC,
+int DRasterApplyGeometry(DRaster* raster, DScene scene, DColor aC, DColor bC,
 DColor cC)
 {
   DTriangle t;
@@ -101,8 +101,7 @@ DColor cC)
 	
   if(!(f = fopen(scene.gFile, "r"))) {
     fprintf(stderr, "Error: Cannot read RAW file %s.\n", scene.gFile);
-    fclose(f);
-    return;
+    return 1;
   }
 	
   while((c = fgetc(f)) != EOF) {
@@ -164,6 +163,7 @@ DColor cC)
   }
 	
   fclose(f);
+  return 0;
 }
 
 void DRasterSavePPM(DRaster* raster, char* path)

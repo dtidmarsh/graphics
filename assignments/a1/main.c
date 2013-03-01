@@ -21,7 +21,6 @@ int main(int argc, char* argv[])
     return 1;
   } else if(!(f = fopen(argv[1], "r"))) {
     fprintf(stderr, "Fatal error: Cannot read input scene file.\n");
-    fclose(f);
     return 2;
   } else if(fscanf(f, "%2s", magicNumber) != 1 || strcmp(magicNumber, "U2")) {
     fprintf(stderr, "Fatal error: Incorrect format for input scene file.\n");
@@ -73,7 +72,7 @@ int main(int argc, char* argv[])
       case 'c':
 	{	
 	  // color line
-	  if(fscanf(f, "%f %f %f %f %f %f %f %f %f", &temp[0], &temp[1],
+  if(fscanf(f, "%f %f %f %f %f %f %f %f %f", &temp[0], &temp[1],
 		    &temp[2], &temp[3], &temp[4], &temp[5], &temp[6],
 		    &temp[7], &temp[8]) != 9) {
 	    fprintf(stderr, "Error: Invalid format for color instruction.\n");

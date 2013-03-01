@@ -31,7 +31,7 @@ void DRasterDrawTriangle(DRaster* raster, DTriangle t, DColor fill);
 void DRasterDrawTriangleInterp(DRaster* raster, DTriangle t, DColor aC, DColor bC, DColor cC);
 
 // Applies most recent geometry information to raster
-void DRasterApplyGeometry(DRaster* raster, DScene s, DColor aC, DColor bC, DColor cC);
+int DRasterApplyGeometry(DRaster* raster, DScene s, DColor aC, DColor bC, DColor cC);
 
 void DRasterSavePPM(DRaster* raster, char* path);
 void DRasterSaveBMP(DRaster* raster, char* path);
